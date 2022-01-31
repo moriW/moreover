@@ -1,0 +1,4 @@
+tornado==6.1
+motor==2.5.1
+jinja2==3.0.3
+Click==8.0.3
