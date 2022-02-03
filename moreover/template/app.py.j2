@@ -12,6 +12,7 @@ import tornado.web
 import tornado.ioloop
 import tornado.httpserver
 from tornado.options import options
+from .view.router import HANDLERS
 
 # options.parse_config_file("project.conf")
 options.define("HOST", default="0.0.0.0", help="running host")
@@ -19,7 +20,6 @@ options.define("PORT", default=8888, help="running host")
 options.define("DEBUG", default=True, help="running host")
 
 
-HANDLERS = []
 MAIN_APP = tornado.web.Application(
     handlers=HANDLERS, default_host=options.HOST, gzip=True, debug=options.DEBUG
 )

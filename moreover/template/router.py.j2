@@ -1,0 +1,21 @@
+#! /usr/bin/env python
+# {{ PROJECT_NAME }}
+# router entry
+#
+# @file: web
+# @time: {{year}}/{{month}}/{{day}}
+# @author: Mori
+#
+
+from tornado.web import RequestHandler
+
+class HealthHandler(RequestHandler):
+    async def get(self):
+        self.write("health")
+        await self.flush()
+
+HANDLERS = [
+    (r"/_health", HealthHandler),
+]
+
+__all__ = ["HANDLERS"]
