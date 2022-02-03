@@ -3,4 +3,3 @@ motor==2.5.1
 jinja2==3.0.3
 aiomcache==0.7.0
 Click==8.0.3
-msgpack==1.0.3

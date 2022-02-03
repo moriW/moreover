@@ -26,10 +26,6 @@ setup(
     py_modules=["moreover"],
     packages=find_packages(),
     install_requires=requirements,
-    package_data={
-        # "": ["*.j2"]
-        "moreover": ["template/*.j2"]
-    },
-    include_package_data=True,
+    package_data={"moreover": ["template/*.j2"]},
     entry_points={"console_scripts": ["mori=moreover.base.cli"]},
 )
