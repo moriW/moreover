@@ -9,8 +9,8 @@
 import bson
 import random
 import asyncio
-from tornado.options import options
 
+from .config import *
 from moreover.orm.motor import Collection
 
 
