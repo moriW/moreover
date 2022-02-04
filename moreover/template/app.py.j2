@@ -16,8 +16,9 @@ from .view.router import HANDLERS
 
 # options.parse_config_file("project.conf")
 options.define("HOST", default="0.0.0.0", help="running host")
-options.define("PORT", default=8888, help="running host")
-options.define("DEBUG", default=True, help="running host")
+options.define("PORT", default=8888, help="running port")
+options.define("DEBUG", default=True, help="enable debug mode")
+options.define("ENABLE_TRACEBACK", default=True, help="enable traceback")
 
 
 MAIN_APP = tornado.web.Application(
