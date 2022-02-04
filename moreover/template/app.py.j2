@@ -25,6 +25,7 @@ MAIN_APP = tornado.web.Application(
 )
 
 if __name__ == "__main__":
+    options.parse_config_file("config.py")
     ioloop = tornado.ioloop.IOLoop.current()
     http_server = tornado.httpserver.HTTPServer(MAIN_APP)
     http_server.listen(options.PORT)

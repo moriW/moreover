@@ -77,6 +77,17 @@ def init_project(project_name: str):
             )
         )
 
+    with open(os.path.join(project_name, "migration", "__init__.py"), "w") as _f:
+        _f.write(
+            header_template.render(
+                PROJECT_NAME=project_name,
+                content="service entry",
+                year=now.year,
+                month=now.month,
+                day=now.day,
+            )
+        )
+
     with open(os.path.join(MODULE_PATH, "template", "app.py.j2"), "r") as _f1, open(
         os.path.join(project_name, "app.py"), "w"
     ) as _f2:
@@ -99,6 +110,24 @@ def init_project(project_name: str):
     with open(os.path.join(MODULE_PATH, "template", "gitignore.j2"), "r") as _f1, open(
         os.path.join(project_name, ".gitignore"), "w"
     ) as _f2:
+        template = jinja2.Template(_f1.read())
+        _f2.write(template.render())
+
+    with open(os.path.join(MODULE_PATH, "template", "config.py.j2"), "r") as _f1, open(
+        os.path.join(project_name, "config.py"), "w"
+    ) as _f2:
+        template = jinja2.Template(_f1.read())
+        _f2.write(template.render())
+
+    with open(os.path.join(MODULE_PATH, "template", "Dockerfile.j2"), "r") as _f1, open(
+        os.path.join(project_name, "Dockerfile"), "w"
+    ) as _f2:
+        template = jinja2.Template(_f1.read())
+        _f2.write(template.render())
+
+    with open(
+        os.path.join(MODULE_PATH, "template", "dockerignore.j2"), "r"
+    ) as _f1, open(os.path.join(project_name, ".dockerignore"), "w") as _f2:
         template = jinja2.Template(_f1.read())
         _f2.write(template.render())
 
