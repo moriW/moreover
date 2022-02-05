@@ -11,23 +11,21 @@
 import tornado.web
 import tornado.ioloop
 import tornado.httpserver
-from tornado.options import options
-from .view.router import HANDLERS
+from view.router import HANDLERS
+from moreover.base.config import define, parse_config_file, global_config
 
-# options.parse_config_file("project.conf")
-options.define("HOST", default="0.0.0.0", help="running host")
-options.define("PORT", default=8888, help="running port")
-options.define("DEBUG", default=True, help="enable debug mode")
-options.define("ENABLE_TRACEBACK", default=True, help="enable traceback")
+define("HOST", default="0.0.0.0")
+define("PORT", default=8888)
+define("DEBUG", default=True)
 
 
 MAIN_APP = tornado.web.Application(
-    handlers=HANDLERS, default_host=options.HOST, gzip=True, debug=options.DEBUG
+    handlers=HANDLERS, default_host=global_config.HOST, gzip=True, debug=global_config.DEBUG
 )
 
 if __name__ == "__main__":
-    options.parse_config_file("config.py")
+    parse_config_file("config.json")
     ioloop = tornado.ioloop.IOLoop.current()
     http_server = tornado.httpserver.HTTPServer(MAIN_APP)
-    http_server.listen(options.PORT)
+    http_server.listen(global_config.PORT)
     ioloop.start()

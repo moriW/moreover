@@ -10,7 +10,6 @@ import bson
 from schema import Schema
 from moreover.base.logger import gen_logger
 from typing import Dict, List, Tuple, Union
-from tornado.options import options
 from motor import MotorClient, MotorDatabase, MotorCollection
 from motor.core import (
     AgnosticClient,
@@ -18,9 +17,13 @@ from motor.core import (
     AgnosticCollection,
     AgnosticCursor,
 )
+from moreover.base.config import global_config, define
 
 logger = gen_logger("orm")
 CursorOrList = Union[List, AgnosticCursor]
+
+define("MONGO_URI", "MONGO_URI")
+define("MONGO_DB", "MONGO_DB")
 
 
 class MotorMeta(type):
@@ -31,13 +34,13 @@ class MotorMeta(type):
     @classmethod
     def get_client(cls) -> Union[MotorClient, AgnosticClient]:
         if not cls.__client:
-            cls.__client = MotorClient(options.MONGO_URI)
+            cls.__client = MotorClient(global_config.MONGO_URI)
         return cls.__client
 
     @classmethod
     def get_db(cls) -> Union[MotorDatabase, AgnosticDatabase]:
         if not cls.__db:
-            cls.__db = cls.get_client().get_database(options.MONGO_DB)
+            cls.__db = cls.get_client().get_database(global_config.MONGO_DB)
         return cls.__db
 
     @classmethod

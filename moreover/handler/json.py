@@ -6,18 +6,20 @@
 # @author: Mori
 #
 
-# from urllib.error import HTTPError
 import logging
 import traceback
 from typing import Dict, List, Union, Optional, Awaitable
 
-from moreover.base.logger import gen_logger
 from tornado.web import RequestHandler
 from tornado.escape import json_decode, json_encode
-from tornado.options import options
+
+from moreover.base.logger import gen_logger
+from moreover.base.config import global_config, define
 
 JSON_MIME = "application/json"
 CONTENT_TYPE = "Content-Type"
+
+define("ENABLE_TRACEBACK", True)
 
 
 class JsonHandler(RequestHandler):
@@ -43,7 +45,10 @@ class JsonHandler(RequestHandler):
         message: str = None,
         traceback: str = None,
     ):
-        payload = {"data": data, "error": {"code": code, "message": message, "traceback": traceback}}
+        payload = {
+            "data": data,
+            "error": {"code": code, "message": message, "traceback": traceback},
+        }
         self.write({json_encode(payload)})
         if code > 500:
             self.set_status(400)
@@ -52,7 +57,7 @@ class JsonHandler(RequestHandler):
 
     def write_error(self, status_code: int, **kwargs: Dict) -> None:
         data = {}
-        if options.ENABLE_TRACEBACK:
+        if global_config.ENABLE_TRACEBACK and global_config.DEBUG:
             # in debug mode, try to send a traceback
             lines = []
             for line in traceback.format_exception(*kwargs["exc_info"]):

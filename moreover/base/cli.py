@@ -9,8 +9,6 @@
 
 import click
 
-from moreover import MODULE_PATH
-
 
 @click.group()
 def cli():
@@ -23,6 +21,7 @@ def init_project(project_name: str):
     import os
     import jinja2
     import datetime
+    from moreover import MODULE_PATH
 
     header_template = """#! /usr/bin/env python
 # {{ PROJECT_NAME }}
@@ -113,9 +112,9 @@ def init_project(project_name: str):
         template = jinja2.Template(_f1.read())
         _f2.write(template.render())
 
-    with open(os.path.join(MODULE_PATH, "template", "config.py.j2"), "r") as _f1, open(
-        os.path.join(project_name, "config.py"), "w"
-    ) as _f2:
+    with open(
+        os.path.join(MODULE_PATH, "template", "config.json.j2"), "r"
+    ) as _f1, open(os.path.join(project_name, "config.json"), "w") as _f2:
         template = jinja2.Template(_f1.read())
         _f2.write(template.render())
 
@@ -145,9 +144,21 @@ def init_project(project_name: str):
         )
 
 
+@cli.command("dump_config")
+@click.argument("config_file", default="config.json")
+def dump_config(config_file: str):
+    import os
+    import json
+    import pkgutil
+    import importlib
+    from moreover.base.config import global_config
+
+    print(os.getcwd())
+    for _, name, _ in pkgutil.walk_packages([os.getcwd()]):
+        importlib.import_module(name)
+    with open(config_file, "w") as _f:
+        _f.write(json.dumps(global_config, indent=4))
+
+
 def main():
     cli()
-
-
-# if __name__ == "__main__":
-#     main()

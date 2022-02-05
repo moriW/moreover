@@ -10,7 +10,6 @@ import bson
 import random
 import asyncio
 
-from .config import *
 from moreover.orm.motor import Collection
 
 

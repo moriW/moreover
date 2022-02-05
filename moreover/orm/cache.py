@@ -12,13 +12,16 @@ import hashlib
 import inspect
 import aiomcache
 from functools import wraps
-from tornado.options import options
 from typing import List, Any, Callable, Awaitable, Optional
 
 from moreover.base.logger import gen_logger
+from moreover.base.config import global_config, define
 
 logger = gen_logger("cache")
 AsyncCallable = Callable[[int], Awaitable[Optional[Any]]]
+
+define("MEMCACHE_HOST", "MEMCACHE_HOST")
+define("MEMCACHE_PORT", "MEMCACHE_PORT")
 
 
 class AioCacher:
@@ -28,7 +31,7 @@ class AioCacher:
     def get_client(cls) -> aiomcache.Client:
         if cls.memcache_client is None:
             cls.memcache_client = aiomcache.Client(
-                options.MEMCACHE_HOST, options.MEMCACHE_PORT
+                global_config.MEMCACHE_HOST, global_config.MEMCACHE_PORT
             )
         return cls.memcache_client
 
