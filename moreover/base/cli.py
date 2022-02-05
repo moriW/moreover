@@ -18,7 +18,7 @@ def cli():
 
 
 @cli.command("init")
-@click.option("--project_name", type=str)
+@click.argument("project_name")
 def init_project(project_name: str):
     import os
     import jinja2
@@ -145,4 +145,9 @@ def init_project(project_name: str):
         )
 
 
-cli()
+def main():
+    cli()
+
+
+# if __name__ == "__main__":
+#     main()

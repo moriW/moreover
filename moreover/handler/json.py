@@ -27,9 +27,7 @@ class JsonHandler(RequestHandler):
 
     @property
     def logger(self) -> logging.Logger:
-        if hasattr(self, "logger"):
-            self.logger = gen_logger(self.__class__.__name__)
-        return self.logger
+        return gen_logger(self.__class__.__name__)
 
     def prepare(self) -> Optional[Awaitable[None]]:
         self._body_data = None
@@ -38,13 +36,21 @@ class JsonHandler(RequestHandler):
             self._body_data = json_decode(self.request.body)
         return super().prepare()
 
-    def render_json(self, data: Union[Dict, List]):
-        self.write(json_encode(data))
+    def render_json(
+        self,
+        data: Union[Dict, List],
+        code: int = None,
+        message: str = None,
+        traceback: str = None,
+    ):
+        payload = {"data": data, "error": {"code": code, "message": message, "traceback": traceback}}
+        self.write({json_encode(payload)})
+        if code > 500:
+            self.set_status(400)
         self.set_header(CONTENT_TYPE, JSON_MIME)
         return self.flush()
 
     def write_error(self, status_code: int, **kwargs: Dict) -> None:
-        self.set_header(CONTENT_TYPE, JSON_MIME)
         data = {}
         if options.ENABLE_TRACEBACK:
             # in debug mode, try to send a traceback
