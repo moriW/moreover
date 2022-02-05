@@ -22,8 +22,8 @@ from moreover.base.config import global_config, define
 logger = gen_logger("orm")
 CursorOrList = Union[List, AgnosticCursor]
 
-define("MONGO_URI", "MONGO_URI")
-define("MONGO_DB", "MONGO_DB")
+define("MONGO_URI", default_value="MONGO_URI")
+define("MONGO_DB", default_value="MONGO_DB")
 
 
 class MotorMeta(type):

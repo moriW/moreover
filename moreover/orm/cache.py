@@ -20,8 +20,8 @@ from moreover.base.config import global_config, define
 logger = gen_logger("cache")
 AsyncCallable = Callable[[int], Awaitable[Optional[Any]]]
 
-define("MEMCACHE_HOST", "MEMCACHE_HOST")
-define("MEMCACHE_PORT", "MEMCACHE_PORT")
+define("MEMCACHE_HOST", default_value="MEMCACHE_HOST")
+define("MEMCACHE_PORT", default_value="MEMCACHE_PORT")
 
 
 class AioCacher:

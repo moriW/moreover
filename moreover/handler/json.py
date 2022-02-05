@@ -19,7 +19,7 @@ from moreover.base.config import global_config, define
 JSON_MIME = "application/json"
 CONTENT_TYPE = "Content-Type"
 
-define("ENABLE_TRACEBACK", True)
+define("ENABLE_TRACEBACK", default_value=True)
 
 
 class JsonHandler(RequestHandler):
