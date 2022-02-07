@@ -7,17 +7,21 @@
 #
 
 
-import sys
 import logging
+
+loggers: dict = {}
 
 
 def gen_logger(name: str) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
-        "%(name)s@%(asctime)s-%(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S"
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    return logger
+    if name not in loggers:
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.INFO)
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(
+            logging.Formatter(
+                "%(name)s@%(asctime)s-%(levelname)s: %(message)s", "%Y/%m/%d %H:%M:%S"
+            )
+        )
+        logger.addHandler(stream_handler)
+        loggers[name] = logger
+    return loggers[name]
