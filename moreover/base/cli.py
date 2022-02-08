@@ -130,6 +130,14 @@ def init_project(project_name: str):
         template = jinja2.Template(_f1.read())
         _f2.write(template.render())
 
+    with open(
+        os.path.join(MODULE_PATH, "template", "build.sh.j2"), "r"
+    ) as _f1, open(os.path.join(project_name, "build.sh"), "w") as _f2:
+        template = jinja2.Template(_f1.read())
+        _f2.write(template.render(
+            PROJECT_NAME=project_name
+        ))
+
     with open(os.path.join(MODULE_PATH, "template", "router.py.j2"), "r") as _f1, open(
         os.path.join(project_name, "view", "router.py"), "w"
     ) as _f2:
