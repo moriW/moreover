@@ -21,7 +21,7 @@ CONTENT_TYPE = "Content-Type"
 define("ENABLE_TRACEBACK", default_value=True)
 
 
-class JsonHandler(RequestHandler):
+class JsonRequestHandler(RequestHandler):
     @property
     def data(self) -> Union[Dict, List]:
         if self.request.method in ["POST", "PUT"] and self._body_data is None:
@@ -30,29 +30,30 @@ class JsonHandler(RequestHandler):
                     400, reason="ContentType not JSON or body not json type"
                 )
             self._body_data = json_decode(self.request.body)
-        return self._body_data or {}
+            return self._body_data or {}
+        else:
+            return self.request.query_arguments or {}
 
     def prepare(self) -> Optional[Awaitable[None]]:
         self._body_data = None
         return super().prepare()
 
+
+class JsonResponseHandler(RequestHandler):
     def render_json(
         self,
-        data: Union[Dict, List],
+        data: Union[Dict, List] = {},
         code: int = None,
         message: str = None,
         traceback_payload: List[str] = [],
     ):
         payload = {
             "data": data,
-            "error": {
-                "code": code,
-                "message": message,
-            },
+            "error": {"code": code, "message": message, "traceback": []},
         }
 
-        if traceback_payload:
-            payload["error"]["traceback"] = "".join(traceback_payload)
+        if traceback_payload is not None and len(traceback_payload) > 0:
+            payload["error"]["traceback"] = traceback_payload
 
         self.write(json_encode(payload))
         if code is not None and code > 500:
@@ -73,3 +74,7 @@ class JsonHandler(RequestHandler):
             message=self._reason,
             traceback_payload=lines,
         )
+
+
+class JsonHandler(JsonRequestHandler, JsonResponseHandler):
+    ...
