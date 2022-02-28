@@ -35,5 +35,5 @@ class AsyncExecutor(object, metaclass=AsyncExecutorMeta):
 
     @classmethod
     @run_on_executor
-    def executor_from_executor(cls, *args, **kwargs) -> Optional[Awaitable]:
+    def execute(cls, *args, **kwargs) -> Optional[Awaitable]:
         return cls.task(*args, **kwargs)

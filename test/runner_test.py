@@ -12,7 +12,7 @@ class TaskExecutor(AsyncExecutor):
 
 
 async def main():
-    await TaskExecutor.executor_from_executor()
+    await TaskExecutor.execute()
 
 
 if __name__ == "__main__":
