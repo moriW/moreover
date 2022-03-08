@@ -40,8 +40,13 @@ class JsonRequestHandler(RequestHandler):
                 if not v:
                     self._query_data[k] = None
                 else:
-                    for sub_v in v:
-                        self._query_data[k] = sub_v.decode("utf8")
+                    if len(v) == 1:
+                        self._query_data[k] = v[0].decode("utf8")
+                    else:
+                        self._query_data[k] = [
+                            sub_v.decode('utf8')
+                            for sub_v in v
+                        ]
         return self._query_data
 
     def prepare(self) -> Optional[Awaitable[None]]:
