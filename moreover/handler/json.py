@@ -23,19 +23,30 @@ define("ENABLE_TRACEBACK", default_value=True)
 
 class JsonRequestHandler(RequestHandler):
     @property
-    def data(self) -> Union[Dict, List]:
+    def body_data(self) -> Union[Dict, List]:
         if self.request.method in ["POST", "PUT"] and self._body_data is None:
             if self.request.headers.get(CONTENT_TYPE, None) != JSON_MIME:
                 raise HTTPError(
                     400, reason="ContentType not JSON or body not json type"
                 )
             self._body_data = json_decode(self.request.body)
-            return self._body_data or {}
-        else:
-            return self.request.query_arguments or {}
+        return self._body_data or {}
+
+    @property
+    def query_data(self) -> Dict:
+        if self._query_data is None:
+            self._query_data = {}
+            for k, v in self.request.query_arguments.items():
+                if not v:
+                    self._query_data[k] = None
+                else:
+                    for sub_v in v:
+                        self._query_data[k] = sub_v.decode("utf8")
+        return self._query_data
 
     def prepare(self) -> Optional[Awaitable[None]]:
         self._body_data = None
+        self._query_data = None
         return super().prepare()
 
 
