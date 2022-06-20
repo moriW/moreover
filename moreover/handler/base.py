@@ -10,7 +10,7 @@
 import traceback
 from typing import Dict
 
-from tornado.web import RequestHandler
+from tornado.web import RequestHandler, HTTPError
 from tornado.log import app_log
 
 from moreover.base.config import global_config, define
@@ -27,17 +27,23 @@ class ErrorTraceHandler(RequestHandler):
             for line in traceback.format_exception(*kwargs["exc_info"]):
                 lines.append(line)
 
-        messages = "".join(lines)
-        if len(messages):
-            app_log.error(f"{status_code} with: {messages}")
+        error = kwargs["exc_info"][1]
+        tracebacks = "\n".join(lines)
+        app_log.error(f"{status_code} with: {tracebacks}")
 
-        resp_json = render_json_resp(
-            data={},
-            code=500,
-            traceback_payload=messages,
-        )
+        resp = {
+            "data": {},
+            "code": status_code,
+            "message": error.log_message,
+            "traceback_payload": tracebacks,
+        }
+        if isinstance(error, HTTPError):
+            self.set_status(400)
+            resp["traceback_payload"] = []
+        else:
+            self.set_status(500)
+            resp["message"] = None
 
-        self.set_status(500)
         self.set_header(CONTENT_TYPE, JSON_MIME)
-        self.write(resp_json)
+        self.write(resp)
         self.flush()
