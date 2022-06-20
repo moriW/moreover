@@ -34,12 +34,13 @@ class ErrorTraceHandler(RequestHandler):
         resp = {
             "data": {},
             "code": status_code,
-            "message": error.log_message,
+            "message": None,
             "traceback_payload": tracebacks,
         }
         if isinstance(error, HTTPError):
             self.set_status(400)
             resp["traceback_payload"] = []
+            resp["message"] = error.log_message
         else:
             self.set_status(500)
             resp["message"] = None
