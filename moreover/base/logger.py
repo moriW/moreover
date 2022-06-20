@@ -9,6 +9,7 @@
 
 import sys
 import logging
+from tornado.log import app_log, gen_log, access_log
 
 loggers: dict = {}
 
@@ -26,3 +27,9 @@ def gen_logger(name: str) -> logging.Logger:
         logger.addHandler(stream_handler)
         loggers[name] = logger
     return loggers[name]
+
+
+def debug_log():
+    app_log.setLevel(logging.DEBUG)
+    gen_log.setLevel(logging.DEBUG)
+    access_log.setLevel(logging.DEBUG)
