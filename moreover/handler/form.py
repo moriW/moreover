@@ -29,6 +29,7 @@ class FormHandler(ErrorTraceHandler):
                         self._form_data[k] = v[0].decode("utf8")
                     else:
                         self._form_data[k] = [sub_v.decode("utf8") for sub_v in v]
+
             for k, v in self.request.files.items():
-                self._form_data[k] = v
+                self._form_data[k] = v[0]
         return self._form_data
