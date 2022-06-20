@@ -45,5 +45,5 @@ class ErrorTraceHandler(RequestHandler):
             resp["message"] = None
 
         self.set_header(CONTENT_TYPE, JSON_MIME)
-        self.write(resp)
+        self.write(render_json_resp(**resp))
         self.flush()
