@@ -18,6 +18,7 @@ logger = gen_logger("config")
 def define(config: str, default_value: str):
     if config in global_config:
         logger.warning(f"key: {config} already exists")
+        return
     global_config[config] = default_value
 
 
