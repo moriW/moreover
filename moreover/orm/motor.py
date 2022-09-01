@@ -132,7 +132,7 @@ class Collection(object, metaclass=MotorMeta):
         with_count: bool = False,
         return_cursor: bool = False,
     ) -> Union[Tuple[CursorOrList, int], Tuple[object, int]]:
-        cursor = cls.query(
+        cursor = cls.find(
             filter=filter, projection=projection, sort=sort, limit=limit, offset=offset
         )
         count = None
