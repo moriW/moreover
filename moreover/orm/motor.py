@@ -43,6 +43,7 @@ class MotorMeta(type):
             cls.__db = cls.get_client().get_database(global_config.MONGO_DB)
         return cls.__db
 
+
     @classmethod
     def read_collection(
         cls, collection_name: str
@@ -53,6 +54,7 @@ class MotorMeta(type):
                 collection_name
             )
         return cls.__cached_collection[collection_name]
+
 
     def __new__(cls, name, bases, attrs):
         new_cls = type.__new__(cls, name, bases, attrs)
