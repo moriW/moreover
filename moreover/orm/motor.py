@@ -7,9 +7,10 @@
 #
 
 import bson
+from pymongo import ReturnDocument
 from schema import Schema
 from moreover.base.logger import gen_logger
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Any, overload
 from motor import MotorClient, MotorDatabase, MotorCollection
 from motor.core import (
     AgnosticClient,
@@ -43,7 +44,6 @@ class MotorMeta(type):
             cls.__db = cls.get_client().get_database(global_config.MONGO_DB)
         return cls.__db
 
-
     @classmethod
     def read_collection(
         cls, collection_name: str
@@ -54,7 +54,6 @@ class MotorMeta(type):
                 collection_name
             )
         return cls.__cached_collection[collection_name]
-
 
     def __new__(cls, name, bases, attrs):
         new_cls = type.__new__(cls, name, bases, attrs)
@@ -87,7 +86,7 @@ class MotorMeta(type):
         return new_cls
 
 
-class Collection(object, metaclass=MotorMeta):
+class Collection(dict, metaclass=MotorMeta):
     db: MotorDatabase
     client: MotorClient
     collection: MotorCollection
@@ -95,15 +94,32 @@ class Collection(object, metaclass=MotorMeta):
     schema: Schema = None
     indexs = []
 
-    def __init__(self, document: Dict) -> None:
-        super(Collection, self).__init__()
-        self.__document = document
-        if self.schema:
-            self.__document = self.schema.validate(document)
+    # def update(self, )
 
-    @property
-    def document(self):
-        return self.__document
+    def __init__(self, **document) -> None:
+        super(Collection, self).__init__()
+        self.update(document)
+
+    def validate(self):
+        self.schema.validate(self)
+
+    @overload
+    def update(self, update_payload: dict) -> None:
+        super().update(update_payload)
+        self.validate()
+
+    @overload
+    def update(self, **update_payload) -> None:
+        super().update(update_payload)
+        self.validate()
+
+    def __getattribute__(self, __name: str) -> Any:
+        if hasattr(self, __name):
+            return super().__getattribute__(__name)
+        return self[__name]
+
+    def __setattr__(self, __name: str, __value: Any) -> None:
+        return super().__setattr__(__name, __value)
 
     def update_document(self, **kwargs):
         if self.schema:
@@ -153,3 +169,86 @@ class Collection(object, metaclass=MotorMeta):
         else:
             document = await cls.find_one(id_or_filter)
         return cls(document)
+
+    @classmethod
+    async def find_one_and_update(
+        cls,
+        filter: Dict,
+        update: Dict,
+        projection: Dict = None,
+        sort: List[Tuple[str, int]] = None,
+        upsert: bool = False,
+        return_document=ReturnDocument.BEFORE,
+    ):
+        doc = await cls.collection.find_one_and_update(
+            filter=filter,
+            update=update,
+            projection=projection,
+            sort=sort,
+            upsert=upsert,
+            return_document=return_document,
+        )
+        return cls(**doc)
+
+    @classmethod
+    async def bulk_write(cls, ops: List):
+        return await cls.collection.bulk_write(ops)
+
+    @classmethod
+    async def count_documents(cls, filter: Dict):
+        return await cls.collection.count_documents(filter)
+
+    @classmethod
+    async def create_index(cls, indexs: List[Tuple[str, int]]):
+        return await cls.collection.create_index(filter)
+
+    @classmethod
+    async def drop_index(cls, index_or_name: str):
+        return await cls.collection.drop_index(filter)
+
+    @classmethod
+    async def delete_many(cls, filter: Dict):
+        return await cls.collection.delete_many(filter)
+
+    @classmethod
+    async def delete_one(cls, filter: Dict):
+        return await cls.collection.delete_one(filter)
+
+    @classmethod
+    async def update_many(
+        cls,
+        filter: Dict,
+        update: Dict,
+        upsert: bool = False,
+        array_filters: List = None,
+        bypass_document_validation: bool = False,
+    ):
+        return await cls.collection.update_many(
+            filter=filter,
+            update=update,
+            upsert=upsert,
+            array_filters=array_filters,
+            bypass_document_validation=bypass_document_validation,
+        )
+
+    @classmethod
+    async def insert_one(cls, document: Dict, bypass_document_validation: bool = False):
+        doc = await cls.collection.insert_one(
+            document=document, bypass_document_validation=bypass_document_validation
+        )
+        return cls(**doc)
+
+    @classmethod
+    async def insert_many(
+        cls,
+        documents: Dict,
+        ordered: bool = True,
+        bypass_document_validation: bool = False,
+    ):
+        docs = await cls.collection.insert_many(
+            documents=documents,
+            ordered=ordered,
+            bypass_document_validation=bypass_document_validation,
+        )
+
+        return [cls(**doc) for doc in docs]
