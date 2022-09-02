@@ -107,12 +107,10 @@ class Collection(dict, metaclass=MotorMeta):
 
     def __init__(self, **document) -> None:
         super(Collection, self).__init__()
-        self.update(document)
-        self.validate()
-
-    def validate(self):
-        if self.schema is not None:
-            self.schema.validate(self)
+        data = self.schema.validate(**document)
+        self.update(data)
+        # if not self.schema.is_valid(**document):
+        #     raise ValueError
 
     async def save(self):
         if "_id" in self.__document and self.__document["_id"] is not None:
