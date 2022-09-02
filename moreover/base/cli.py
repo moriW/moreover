@@ -42,12 +42,24 @@ def init_project(project_name: str):
     os.mkdir(os.path.join(project_name, "view"))
     os.mkdir(os.path.join(project_name, "service"))
     os.mkdir(os.path.join(project_name, "migration"))
+    os.mkdir(os.path.join(project_name, "utils"))
 
     with open(os.path.join(project_name, "orm", "__init__.py"), "w") as _f:
         _f.write(
             header_template.render(
                 PROJECT_NAME=project_name,
                 content="orm entry",
+                year=now.year,
+                month=now.month,
+                day=now.day,
+            )
+        )
+
+    with open(os.path.join(project_name, "utils", "__init__.py"), "w") as _f:
+        _f.write(
+            header_template.render(
+                PROJECT_NAME=project_name,
+                content="utils entry",
                 year=now.year,
                 month=now.month,
                 day=now.day,
@@ -138,6 +150,19 @@ def init_project(project_name: str):
 
     with open(os.path.join(MODULE_PATH, "template", "router.py.j2"), "r") as _f1, open(
         os.path.join(project_name, "view", "router.py"), "w"
+    ) as _f2:
+        template = jinja2.Template(_f1.read())
+        _f2.write(
+            template.render(
+                year=now.year,
+                month=now.month,
+                day=now.day,
+                PROJECT_NAME=project_name,
+            )
+        )
+
+    with open(os.path.join(MODULE_PATH, "template", "env.py.j2"), "r") as _f1, open(
+        os.path.join(project_name, "utils", "env.py"), "w"
     ) as _f2:
         template = jinja2.Template(_f1.read())
         _f2.write(
