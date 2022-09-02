@@ -109,8 +109,13 @@ class Collection(dict, metaclass=MotorMeta):
             return super().__getattribute__(__name)
         return self[__name]
 
+
     def __setattr__(self, __name: str, __value: Any) -> None:
+        self[__name] = __value
         return super().__setattr__(__name, __value)
+
+    # def __setattr__(self, __name: str, __value: Any) -> None:
+    #     return super().__setattr__(__name, __value)
 
     # def update_document(self, **kwargs):
     #     if self.schema:
