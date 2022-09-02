@@ -107,7 +107,7 @@ class Collection(dict, metaclass=MotorMeta):
 
     def __init__(self, **document) -> None:
         super(Collection, self).__init__()
-        data = self.schema.validate(**document)
+        data = self.schema.validate(document)
         self.update(data)
         # if not self.schema.is_valid(**document):
         #     raise ValueError

@@ -9,4 +9,4 @@
 import os
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
-__version__ = "0.0.8"
+__version__ = "0.0.9"
