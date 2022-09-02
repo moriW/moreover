@@ -10,7 +10,7 @@ import bson
 from pymongo import ReturnDocument
 from schema import Schema
 from moreover.base.logger import gen_logger
-from typing import Dict, List, Tuple, Union, Any, overload
+from typing import Dict, List, Tuple, Union, Any
 from motor import MotorClient, MotorDatabase, MotorCollection
 from motor.core import (
     AgnosticClient,
@@ -99,19 +99,10 @@ class Collection(dict, metaclass=MotorMeta):
     def __init__(self, **document) -> None:
         super(Collection, self).__init__()
         self.update(document)
+        self.validate()
 
     def validate(self):
         self.schema.validate(self)
-
-    @overload
-    def update(self, update_payload: dict) -> None:
-        super().update(update_payload)
-        self.validate()
-
-    @overload
-    def update(self, **update_payload) -> None:
-        super().update(update_payload)
-        self.validate()
 
     def __getattribute__(self, __name: str) -> Any:
         if hasattr(self, __name):
@@ -121,11 +112,11 @@ class Collection(dict, metaclass=MotorMeta):
     def __setattr__(self, __name: str, __value: Any) -> None:
         return super().__setattr__(__name, __value)
 
-    def update_document(self, **kwargs):
-        if self.schema:
-            self.__document = self.schema.validate({**self.__document, **kwargs})
-        else:
-            self.__document.update(kwargs)
+    # def update_document(self, **kwargs):
+    #     if self.schema:
+    #         self.__document = self.schema.validate({**self.__document, **kwargs})
+    #     else:
+    #         self.__document.update(kwargs)
 
     async def save(self):
         if "_id" in self.__document and self.__document["_id"] is not None:
@@ -155,11 +146,11 @@ class Collection(dict, metaclass=MotorMeta):
         if with_count:
             count = await cls.count_documents(filter)
         if limit == 1:
-            [cls(item) async for item in cursor][0], count
+            [cls(**item) async for item in cursor][0], count
         if return_cursor:
             return cursor, count
         else:
-            data = [cls(item) async for item in cursor]
+            data = [cls(**item) async for item in cursor]
             return data, count
 
     @classmethod
@@ -168,7 +159,7 @@ class Collection(dict, metaclass=MotorMeta):
             document = await cls.find_one({"_id": id_or_filter})
         else:
             document = await cls.find_one(id_or_filter)
-        return cls(document)
+        return cls(**document)
 
     @classmethod
     async def find_one_and_update(
