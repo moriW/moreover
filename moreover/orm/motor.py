@@ -7,11 +7,10 @@
 #
 
 import bson
-from tornado.util import ObjectDict
 from pymongo import ReturnDocument
 from schema import Schema
 from moreover.base.logger import gen_logger
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Any
 from motor import MotorClient, MotorDatabase, MotorCollection
 from motor.core import (
     AgnosticClient,
@@ -87,7 +86,7 @@ class MotorMeta(type):
         return new_cls
 
 
-class Collection(ObjectDict, metaclass=MotorMeta):
+class Collection(dict, metaclass=MotorMeta):
     db: MotorDatabase
     client: MotorClient
     collection: MotorCollection
@@ -97,13 +96,23 @@ class Collection(ObjectDict, metaclass=MotorMeta):
 
     # def update(self, )
 
+    def __getattr__(self, name: str) -> Any:
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        self[name] = value
+
     def __init__(self, **document) -> None:
         super(Collection, self).__init__()
         self.update(document)
         self.validate()
 
     def validate(self):
-        self.schema.validate(self)
+        if self.schema is not None:
+            self.schema.validate(self)
 
     async def save(self):
         if "_id" in self.__document and self.__document["_id"] is not None:
