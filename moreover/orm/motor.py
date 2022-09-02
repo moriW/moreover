@@ -133,9 +133,11 @@ class Collection(dict, metaclass=MotorMeta):
         with_count: bool = False,
         return_cursor: bool = False,
     ) -> Union[Tuple[CursorOrList, int], Tuple[object, int]]:
-        cursor = cls.find(
-            filter=filter, projection=projection, sort=sort, limit=limit, skip=offset
-        )
+        kwargs = dict(filter=filter, projection=projection, sort=sort, limit=limit, skip=offset)
+        for k, v in list(kwargs.items()):
+            if v is None:
+                kwargs.pop(k)
+        cursor = cls.find(**kwargs)
         count = None
         if with_count:
             count = await cls.count_documents(filter)
