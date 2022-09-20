@@ -7,5 +7,5 @@
 #
 
 
-from .motor import MotorMeta, Collection, CursorOrList
-from .cache import cache_it
+from moreover.orm.motor import MotorMeta, Collection
+from moreover.orm.cache import cache_it
