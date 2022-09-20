@@ -21,7 +21,6 @@ from motor.core import (
 from moreover.base.config import global_config, define
 
 logger = gen_logger("orm")
-CursorOrList = Union[List, AgnosticCursor]
 
 define("MONGO_URI", default_value="MONGO_URI")
 define("MONGO_DB", default_value="MONGO_DB")
@@ -132,22 +131,26 @@ class Collection(dict, metaclass=MotorMeta):
         offset: int = None,
         with_count: bool = False,
         return_cursor: bool = False,
-    ) -> Union[Tuple[CursorOrList, int], Tuple[object, int]]:
-        kwargs = dict(filter=filter, projection=projection, sort=sort, limit=limit, skip=offset)
-        for k, v in list(kwargs.items()):
-            if v is None:
-                kwargs.pop(k)
-        cursor = cls.find(**kwargs)
+    ) -> Union[AgnosticCursor, Tuple[AgnosticCursor, int], List, Tuple[List, int]]:
+        kwargs = dict(
+            filter=filter, projection=projection, sort=sort, limit=limit, skip=offset
+        )
+
+        cursor = cls.find(**{k: v for k, v in kwargs.items() if v is not None})
         count = None
         if with_count:
             count = await cls.count_documents(filter)
-        if limit == 1:
-            [cls(**item) async for item in cursor][0], count
+
         if return_cursor:
-            return cursor, count
+            if with_count:
+                return cursor, count
+            return cursor
+
         else:
             data = [cls(**item) async for item in cursor]
-            return data, count
+            if with_count:
+                return data, count
+            return data
 
     @classmethod
     async def get_one(cls, id_or_filter: Union[bson.ObjectId, Dict]):
@@ -186,12 +189,12 @@ class Collection(dict, metaclass=MotorMeta):
         return await cls.collection.count_documents(filter)
 
     @classmethod
-    async def create_index(cls, indexs: List[Tuple[str, int]]):
-        return await cls.collection.create_index(filter)
+    async def create_index(cls, index: List[Tuple[str, int]]):
+        return await cls.collection.create_index(index)
 
     @classmethod
     async def drop_index(cls, index_or_name: str):
-        return await cls.collection.drop_index(filter)
+        return await cls.collection.drop_index(index_or_name)
 
     @classmethod
     async def delete_many(cls, filter: Dict):
