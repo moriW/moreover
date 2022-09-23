@@ -32,16 +32,18 @@ class JsonRequestHandler(ErrorTraceHandler):
 
     @property
     def query_data(self) -> Dict:
-        if self._query_data is None:
-            self._query_data = {}
-            for k, v in self.request.query_arguments.items():
-                if not v:
-                    self._query_data[k] = None
-                else:
-                    if len(v) == 1:
-                        self._query_data[k] = v[0].decode("utf8")
-                    else:
-                        self._query_data[k] = [sub_v.decode("utf8") for sub_v in v]
+        if self._query_data is not None:
+            return self._query_data
+
+        self._query_data = {}
+        for k, v in self.request.query_arguments.items():
+            if "[]" in k:
+                self._query_data[k.replace("[]", "")] = [
+                    sub_v.decode("utf8") for sub_v in v
+                ]
+            else:
+                self._query_data[k] = v[0].decode("utf8")
+
         return self._query_data
 
     def prepare(self) -> Optional[Awaitable[None]]:
