@@ -22,13 +22,17 @@ __all__ = ["JsonRequestHandler", "JsonResponseHandler", "JsonHandler"]
 class JsonRequestHandler(ErrorTraceHandler):
     @property
     def body_data(self) -> Union[Dict, List]:
-        if self.request.method in ["POST", "PUT"] and self._body_data is None:
+        if self._body_data is not None:
+            return self._body_data
+
+        self._body_data = {}
+        if self.request.method in ["POST", "PUT"]:
             if self.request.headers.get(CONTENT_TYPE, None) != JSON_MIME:
                 raise HTTPError(
                     400, reason="ContentType not JSON or body not json type"
                 )
             self._body_data = json_decode(self.request.body)
-        return self._body_data or {}
+        return self._body_data
 
     @property
     def query_data(self) -> Dict:
