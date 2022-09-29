@@ -104,10 +104,11 @@ class Collection(dict, metaclass=MotorMeta):
     def __setattr__(self, name: str, value: Any) -> None:
         self[name] = value
 
-    def __init__(self, **document) -> None:
+    def __init__(self, validate_on: bool = False, **document) -> None:
         super(Collection, self).__init__()
-        data = self.schema.validate(document)
-        self.update(data)
+        if validate_on:
+            document = self.schema.validate(document)
+        self.update(document)
         # if not self.schema.is_valid(**document):
         #     raise ValueError
 
@@ -131,6 +132,7 @@ class Collection(dict, metaclass=MotorMeta):
         offset: int = None,
         with_count: bool = False,
         return_cursor: bool = False,
+        validate_on: bool = True,
     ) -> Union[AgnosticCursor, Tuple[AgnosticCursor, int], List, Tuple[List, int]]:
         kwargs = dict(
             filter=filter, projection=projection, sort=sort, limit=limit, skip=offset
@@ -147,7 +149,7 @@ class Collection(dict, metaclass=MotorMeta):
             return cursor
 
         else:
-            data = [cls(**item) async for item in cursor]
+            data = [cls(validate_on=validate_on, **item) async for item in cursor]
             if with_count:
                 return data, count
             return data
