@@ -233,7 +233,7 @@ class Collection(dict, metaclass=MotorMeta):
     @classmethod
     async def insert_many(
         cls,
-        documents: Dict,
+        documents: List[Dict],
         ordered: bool = True,
         bypass_document_validation: bool = False,
     ):
